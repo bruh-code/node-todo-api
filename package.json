@@ -4,8 +4,12 @@
   "description": "A node TODO API",
   "main": "index.js",
   "scripts": {
+    "start": "node server/server.js",
     "test": "mocha server/**/*.test.js",
     "testw": "nodemon --exec \"npm test\""
+  },
+  "engines": {
+    "node": "8.6.0"
   },
   "author": "Bruno Lombardi",
   "license": "ISC",
