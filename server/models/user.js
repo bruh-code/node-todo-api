@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const validator = require('validator');
 const jwt = require('jsonwebtoken');
 const _ = require('lodash');
+const bcrypt = require('bcryptjs');
 
 /**
  * Mongoose Schema for users
@@ -106,6 +107,36 @@ UserSchema.statics.findByToken = function(token) {
   });
 
 };
+
+/**
+ * Function executed before save() runs.
+ * This will generate a hash password for the user
+ * and then will set it to the password field so
+ * the hashed pass is saved
+ * @param  {Function} next [description]
+ * @return {[type]}        [description]
+ */
+UserSchema.pre('save', function (next) {
+  var user = this;
+
+  if(user.isModified('password')) {
+    var passToHash = user.password;
+
+    bcrypt.genSalt(10, (err, salt) => {
+      bcrypt.hash(passToHash, salt, (err, hash) => {
+        if(!err) {
+          user.password = hash;
+          next();
+        } else {
+          next('Error generating hash');
+        }
+      });
+    });
+
+  } else {
+    next();
+  }
+});
 
 let User = mongoose.model('User', UserSchema);
 
