@@ -4,6 +4,7 @@ const {ObjectID} = require('mongodb');
 
 const {app} = require('../server');
 const {Todo} = require('../models/todo');
+const {User} = require('../models/user');
 const {todos, populateTodos, users, populateUsers} = require('./seed/seed');
 
 // Wipe all data on db before the tests run
@@ -196,6 +197,55 @@ describe('GET /users/me', () => {
     .expect((res) => {
       expect(res.body).toEqual({});
     })
+    .end(done);
+  });
+});
+
+describe('POST /users', (done) => {
+  it('create a user', (done) => {
+    var email = 'ana@example.com';
+    var password = 'moj@os';
+
+    request(app)
+    .post('/users')
+    .send({email, password})
+    .expect(200)
+    .expect((res) => {
+      expect(res.headers['x-auth']).toExist();
+      expect(res.body._id).toExist();
+      expect(res.body.email).toBe(email);
+    })
+    .end((err) => {
+      if (err) {
+        return done(err);
+      }
+
+      User.findOne({email}).then((user) => {
+        expect(user).toExist();
+        expect(user.password).toNotBe(password);
+        done();
+      });
+    });
+  });
+
+  it('return validation erros if request is invalid', (done) => {
+    var email = 'invalidemail.com';
+    var password = 'asdfg';
+
+    request(app)
+    .post('/users')
+    .send({email, password})
+    .expect(400)
+    .end(done);
+  });
+
+  it('don\'t create user if email is in use', (done) => {
+    var email = users[0].email;
+    var password = 'aposdkflaps';
+    request(app)
+    .post('/users')
+    .send({email, password})
+    .expect(400)
     .end(done);
   });
 });
