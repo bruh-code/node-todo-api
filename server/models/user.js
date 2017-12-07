@@ -106,6 +106,15 @@ UserSchema.statics.findByToken = function(token) {
   });
 };
 
+/**
+ * Finds a user with the given credentials, verifying that
+ * the user with that email exists, and then comparing the
+ * given password with the hashed password stored in the
+ * database using bcrypt.
+ * @param  {String} email    The user email to query
+ * @param  {String} password The user password to compare
+ * @return {Promise} A Promise with the user found. If user is not found or password is not correct it returns a reject Promise.
+ */
 UserSchema.statics.findByCredentials = function(email, password) {
   var User = this;
 
@@ -131,8 +140,8 @@ UserSchema.statics.findByCredentials = function(email, password) {
  * This will generate a hash password for the user
  * and then will set it to the password field so
  * the hashed pass is saved
- * @param  {Function} next [description]
- * @return {[type]}        [description]
+ * @param  {Function} next The next function assures the process keep running
+ * @return {[undefined]}   Nothing is returned
  */
 UserSchema.pre('save', function (next) {
   var user = this;
