@@ -78,6 +78,16 @@ UserSchema.methods.generateAuthToken = function() {
   });
 };
 
+UserSchema.methods.removeToken = function(token) {
+  var user = this;
+
+  return user.update({
+    $pull: {
+      tokens: {token}
+    }
+  });
+};
+
 /**
  * Finds an user with the given token, verifying that
  * the token is authentic with jwt.verify and then
